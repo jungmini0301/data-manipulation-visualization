@@ -1,0 +1,159 @@
+---
+title: "Data Manipulation and Visualization"
+author: "Jungmin Chang"
+output:
+  html_document:
+    css: lab.css
+    highlight: tango
+    theme: cerulean
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(gapminder)
+library(ggplot2)
+```
+
+
+<div id = "exercise">
+Data visualization really helps us to understand data. To visualize our data, the `ggplot2` package can be used. This package sequentially builds up graphs using `geoms` following a grammar of graphics (gg) principles. If you are unfamiliar with this package then Chapter 3 of [R for Data Science](https://r4ds.had.co.nz/data-visualisation.html) provides a concise introduction.
+</div>
+
+
+##### 1. Creating a scatter plot
+First, we read in *gapminder data* that we will use for data visualization projects from the `Gapminder package`. Then we create a scatter plot of life expectancy versus GDP using `ggplot()` and the `gapminder` dataset, and show the data as a series of points. A scatter plot uses dots to represent values for two different numeric variables.  
+
+```{r}
+# read in data
+gapminder.df <- data.frame(gapminder)
+ggplot(gapminder.df, aes (gdpPercap, lifeExp)) + 
+  geom_point() +
+  labs(title = "Relationship between Life Expectancy and GDP per Capita", y = "Life Expectancy (years)", x = "GDP / per Capita ($)") +
+  theme(plot.title = element_text(size = 10), axis.title = element_text(size = 9), panel.background = element_rect(fill = 'white', color = "grey40", linetype = "solid"))
+```
+
+
+
+##### 2. Plotting a smooth line
+##### 2.1 Geom_smooth()
+To better understand the distribution of data, we can plot a smooth line which is an estimate of the conditional mean function conditional on x variable including its standard error range.
+```{r}
+ggplot(gapminder.df, aes (gdpPercap, lifeExp)) + 
+  geom_smooth() +
+  labs(title = "Relationship between Life Expectancy and GDP per Capita", y = "Life Expectancy (years)", x = "GDP / per Capita ($)") +
+  theme(plot.title = element_text(size = 10), axis.title = element_text(size = 9), panel.background = element_rect(fill = 'white', color = "grey40", linetype = "solid"))
+```
+
+
+##### 2.2 Geom_smooth(method = "lm")
+Using the same variables in 2.1, we can include the data points on the plot and change the smooth line to be a linear regression model      
+```{r}
+ggplot(gapminder.df, aes (gdpPercap, lifeExp)) + 
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(title = "Relationship between Life Expectancy and GDP per Capita", y = "Life Expectancy (years)", x = "GDP / per Capita ($)") +
+  theme(plot.title = element_text(size = 10), axis.title = element_text(size = 9), panel.background = element_rect(fill = 'white', color = "grey40", linetype = "solid"))
+```
+
+
+
+##### 3. Taking a log of skewed data
+It seems like GDP is not normally distributed and rather clustered on the left side of the graph. Once we log of actual GDP values the distribution of GDP becomes closeR to normal distribution.
+```{r}
+ggplot(gapminder.df, aes (gdpPercap, lifeExp)) + 
+  scale_x_continuous(trans = 'log10') +
+  geom_point() +
+  labs(title = "Relationship between Life Expectancy and Log Base 10 GDP per Capita", y = "Life Expectancy (years)", x = "GDP / per Capita ($)") +
+  theme(plot.title = element_text(size = 10), axis.title = element_text(size = 9), panel.background = element_rect(fill = 'white', color = "grey40", linetype = "solid"))
+```
+
+
+
+##### 4. Distiguishing the values according to their corresponding continents with color
+##### 4.1 Colors
+Classifying each continent with different colors helps us to understand the relationship between life expectancy and GDP per capita across the continents. 
+```{r}
+ggplot(gapminder.df, aes (gdpPercap, lifeExp, color = continent)) + 
+  scale_x_continuous(trans = 'log10') +
+  geom_point() +
+  labs(title = "Relationship between Life Expectancy and Log Base 10 GDP per Capita", y = "Life Expectancy (years)", x = "GDP / per Capita ($)") +
+  theme(plot.title = element_text(size = 10), axis.title = element_text(size = 9), panel.background = element_rect(fill = 'white', color = "grey40", linetype = "solid"))
+```
+
+
+###### 4.2 Add a linear mode of line
+```{r}
+ggplot(gapminder.df, aes (gdpPercap, lifeExp)) + 
+  scale_x_continuous(trans = 'log10') +
+  geom_point(aes(color = continent)) +
+  geom_smooth(method = lm) +
+   labs(title = "Economic Growth and Life Expectancy", subtitle = "Data points are country-years", y = "Life Expectancy in Years", x = "GDP per Capita") +
+  theme(plot.title = element_text(size = 10), plot.subtitle = element_text(size = 9), axis.title = element_text(size = 9), panel.background = element_rect(fill = 'white', color = "grey40", linetype = "solid"))
+```
+
+
+
+##### 5. Facet_grid
+Instead of plotting all continents in one graph, we can separate them by plotting several different graphs using `facet_grid`.
+```{r}
+ggplot(gapminder.df, aes (gdpPercap, lifeExp)) +
+  geom_line() +
+  geom_smooth(method = "lm") +
+  facet_grid(cols = vars (continent)) +
+  labs(title = "GDP per capita on Five Continents", y = "GDP per capita", x = "Year") +
+  theme(plot.title = element_text(size = 10), axis.title = element_text(size = 9))
+```
+
+
+##### 6. Manipulating Data
+Data manipulation is an important step to cleaning and organizing the data. Data manipulation can make data exploration easier. The `dplyr` package contains handy functions to manipulate data; `filter`, `select`, `mutate` or `arrange`. On the other hand, the `tidyr` package is useful to reshape data;e.g. to change its format from wide to long (and vice versa).
+
+
+##### 6.1 Select
+We can choose specific columns from our data set by using `select`
+```{r}
+subdata <- gapminder.df %>%
+  select(country, year, gdpPercap)
+head(subdata)
+```
+
+
+##### 6.2 Filter
+While `select` enables us to choose specific columns from our data set, `filter` helps us to choose specific rows with equivalent values we want to print. For instance, we can create a subset of `subdata` where the `year` associated with the observations is either 1952, 1957, 2002 or 2007
+```{r}
+subdata_b <- subdata %>%
+  filter(year == "1952"| year =="1957" | year == "2002"| year == "2007")
+```
+
+
+
+##### 7. Creating a barplot
+
+While a scatter plot has the benefit of displaying relationship between numeric variables, a barplot can be used to compare discrete variables.
+```{r}
+# filter data with year 2007
+gap2007 <- gapminder.df %>%
+  filter(year == "2007")
+
+# create a bar plot
+gap2007 %>%
+  group_by(continent) %>%
+  summarize(mean= mean(lifeExp), sd = sd(lifeExp)) %>% 
+  ungroup() %>% 
+  mutate(continent = factor(continent)) %>% 
+  ggplot(aes(x=continent, y=mean)) +
+  geom_col(width = .55) +
+  scale_y_continuous(name = "Mean life expectancy") +
+  scale_x_discrete("Continent") +
+  labs(title = "Barplot of Average Life Expectancy with Standard Deviations", y = "Mean life expectancy", x = "Continent") +
+  theme(plot.title = element_text(size = 10), axis.title = element_text(size = 9),panel.background = element_rect(fill = 'white', color = "grey40", linetype = "solid")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.1,                    # Width of the error bars
+                  position=position_dodge(.7))
+```
+Oceania has the highest life expectancy in average out of the five continents followed by Europe. Africa has the shortest mean life expectancy with higher standard deviations.
