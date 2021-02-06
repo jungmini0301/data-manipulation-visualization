@@ -1,0 +1,107 @@
+---
+title: "PPHS 616 Software01"
+author: "Jungmin Chang"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: false
+    number_sections: false
+    toc_depth: 3
+    keep_md: false
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r include = FALSE}
+# ---- setup ------------------------------------------------------------------
+knitr::opts_chunk$set(
+  echo = TRUE,          # show code
+  warning = FALSE,       # don't show warnings
+  message = FALSE,       # don't show messages (less serious warnings)
+  cache = FALSE,         # set to TRUE to save results from last compilation
+  fig.align = "center",   # center figures
+  fig.asp = 1,          # fig.aspect ratio
+  fig.width = 6          # fig width
+)
+
+# --- libraries ----------------------------------------------------------------
+library("gapminder")
+library("dplyr")
+library("tibble")
+library("ggplot2")
+maxit=1000
+```
+
+## Preparing a Dataset
+```{r}
+# cleaning r environment 
+rm(list=ls())
+
+# reading in data
+data <- read.csv(file = "gapminder_data.csv")
+
+# checking the structure of a data set 
+glimpse(data) ## 1704 rows, 6 columns, 2 character vars, 4 numeric vars
+head(data)
+
+# creating a data frame
+data <- data.frame(data)
+
+# converting character columns to factor columns
+data <- data %>%
+  mutate_at(vars('country', 'year', 'continent'), as.factor)
+
+# summarizing the data
+summary(data)
+
+# counting unique values in year 
+data %>%
+  group_by(year) %>%
+  summarize(count = n()) # 142 countries are observed 12 times
+
+```
+
+## Computing the Average Life Expectancy and the Average GDP per capita
+```{r}
+# creating a new data with the average life expectancy and gdp per capita from 1952-2007
+data1 <- data %>%
+  group_by(country, continent) %>%
+  summarize(avg_lifeExp = mean(lifeExp),
+            avg_gdp = mean(gdpPercap), 
+            avg_pop = mean(pop)) 
+data1 <- as.data.frame(data1)
+
+# changing the names of columns
+colnames(data1) <- c("country", "continent", "lifeExp", "gdp", "pop")
+
+# print the data
+head(data1, 30) # include country, continent, the average life expectancy, the average gdp per capita, and population 
+
+```
+
+## Visualizing the Average Life Expectancy by Average GDP
+```{r}
+# plotting the bubble chart that shows all countries' average life expectancy at birth by the average gdp per capita over the observation period
+  ggplot(data1) +
+    aes(x=gdp, y=lifeExp, size=pop, color=continent) +
+    geom_point(alpha=0.5) +
+    scale_size(range = c(.1, 24), name="Population (M)") +
+  labs(title = "Life Expectancy and GDP per capita of 142 countries", subtitle = "The vertical axis shows the average life expectancy at birth. \nThe horizontal axis shows real average GDP per capita.", caption = "source: gapminder (https://www.gapminder.org/data/)") +
+  xlab("Average GDP per capita 1952-2007 ($)") +
+  ylab("Average Life Expectancy 1952-2007 (years)") +
+  theme(panel.background = element_rect(fill = "white", colour = "black", linetype = "solid"), panel.grid.minor = element_line(size = 0.5, linetype = "dotted", colour = "grey50"), plot.title = element_text(size = 12, face = "bold"), plot.subtitle = element_text(size = 9, face = "italic"), axis.title.x = element_text(size = 10, face = "bold"), axis.title.y = element_text(size = 10, face = "bold"))
+
+# each bubble is a country. Size is population. Color is region
+
+```
+
+## Identifying Outliers
+```{r}
+# identifying an outlier in our graph
+filter(data1, gdp > 60000) # Kuwait, the average gdp $65332.91
+```
+
+
+
