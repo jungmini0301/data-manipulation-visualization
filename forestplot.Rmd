@@ -1,0 +1,287 @@
+---
+title: "Forest plot"
+author: "Jungmin Chang"
+date: "23/07/2020"
+output: html_document
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(forestplot)
+options(max.print=1000000)
+```
+
+
+## 1, Income_Fruits
+```{r}
+Income_Fruits <- structure(
+  c(NA, NA, 0.094, 0.163, NA, -0.137,-0.044, NA, NA, NA, NA, 0.080, 0.231, NA, 0.139, 0.210, NA, 0.010, 0.215,
+    NA, NA, -0.027,0.058, NA, -0.227,-0.161, NA, -0.845,-0.790, NA, 0.022, 0.128, NA, 0.039, 0.112,NA,-0.094,0.108,
+    NA, NA, 0.214,0.269, NA, -0.048, 0.074, NA, -0.723,-0.599, NA, 0.139, 0.334,NA,0.239, 0.308,NA, 0.115, 0.322),
+  .Dim = c(19L, 3L),
+  .Dimnames= list(c("", "", "canned fruits", "canned fruits", "","canned vegetables", "canned vegetables", "","fresh fruits","fresh fruits","", "fresh vegetables", "fresh vegetables", "","frozen fruits", "frozen fruits", "","frozen vegetables", "frozen vegetables"), 
+                             c("coef", "lower", "upper")))
+
+tabletext <- cbind(
+    c("Category", "canned fruits", "   high income", "   low income", "canned vegetables", "   high income", "   low income", "fresh fruits","   high income", "   low income", "fresh vegetables", "   high income", "   low income", "frozen fruits", "   high income", "   low income", "frozen vegetables", "   high income", "   low income"),
+  c("Price Elasticity (95% CI)", NA, "0.094 (-0.027, 0.214)", "***0.163 (0.058, 0.269)", NA, "***-0.137 (-0.227, -0.048)", "-0.044 (-0.161, 0.074)", NA, "***-0.784 (-0.845, -0.723)","***-0.694 (-0.790, -0.599)", NA, "***0.080 (0.022, 0.139)", "***0.231 (0.128, 0.334)", NA, "***0.139 (0.039, 0.239)","***0.210 (0.112, 0.308)", NA, "0.010 (-0.094, 0.115)", "***0.215 (0.108, 0.322)"))
+
+```
+
+
+## 2, Income_Vegetables
+```{r}
+Income_Veg <- structure(
+  c(NA, NA, -0.223, -0.105, NA, -0.062,-0.124, NA, -0.033,-0.051, NA, NA, NA, NA, 0.032 , 0.126, NA, 0.394, 0.266,
+    NA, NA, -0.322, -0.179, NA, -0.111,-0.193, NA, -0.086,-0.124, NA, -1.039, -1.104, NA, -0.033, 0.045, NA, 0.313, 0.190,
+    NA, NA, -0.124, -0.031, NA, -0.014, -0.054, NA, 0.020, 0.022, NA, -0.925, -0.962,NA, 0.096, 0.206,NA, 0.474, 0.343),
+  .Dim = c(19L, 3L),
+  .Dimnames= list(c("", "", "canned fruits", "canned fruits", "","canned vegetables", "canned vegetables", "","fresh fruits","fresh fruits","", "fresh vegetables", "fresh vegetables", "","frozen fruits", "frozen fruits", "","frozen vegetables", "frozen vegetables"), 
+                             c("coef", "lower", "upper")))
+
+tabletext1 <- cbind(
+  c("Category", "canned fruits", "   high income", "   low income", "canned vegetables", "   high income", "   low income", "fresh fruits","   high income", "   low income", "fresh vegetables", "   high income", "   low income", "frozen fruits", "   high income", "   low income", "frozen vegetables", "   high income", "   low income"),
+  c("Price Elasticity (95% CI)", NA, "***-0.223 (-0.322, -0.124)", "***-0.105 (-0.179, -0.031)", NA, "**-0.062 (-0.111, -0.014)", "***-0.124 (-0.193, -0.054)", NA, "-0.033 (-0.086,  0.020)","-0.051 (-0.124,  0.022)", NA, "***-0.982 (-1.039, -0.925)", "***-1.033 (-1.104, -0.962)", NA, "0.032 (-0.033, 0.096)","***0.126  (0.045, 0.206)", NA, "***0.394 (0.313,  0.474)", "***0.266 (0.190,  0.343"))
+
+
+#hi.st[18]
+#li.st[18]
+#hi.st[19]
+#li.st[19]
+```
+
+
+```{r}
+options(expressions=1000)
+png(file = "fp.income4.png", width = 600, height =1000, units = "px")
+# Create 2 rows by one columns viewport
+fp.income <- grid.newpage()
+pushViewport(viewport(layout=grid.layout(2,1)))
+
+# Plot in viewport position 1x1
+pushViewport(viewport(layout.pos.row = 1))
+forestplot(mean=Income_Fruits[,"coef"],
+          lower = Income_Fruits[,"lower"],
+          upper=Income_Fruits[,"upper"], 
+            labeltext=tabletext,
+            txt_gp = fpTxtGp(label=gpar(cex=1),
+                             ticks = gpar(cex=1),
+                             xlab = gpar(cex=1)
+                             
+            ),
+            fn.ci_norm = fpDrawCircleCI,
+            #legend=c("high income", "low income"), 
+            # Added the clip argument as some of 
+            # the Danish CI are way out therer
+            clip=c(-.5, 0.5),
+            graphwidth = unit(11, "cm"),
+            #cex=1,
+            # Getting the ticks auto-generate is 
+            # a nightmare - it is usually better to 
+            # specify them on your own
+            xticks=c(-.4 -.2, 0, .5),
+            boxsize=0.3,
+            lineheight=unit(0.6,"cm"),
+            colgap = unit(0.5,"cm"),
+            col=fpColors(
+              lines = "black",
+              box = "black",
+              zero = "black",
+              ),
+            shapes_gp = fpShapesGp(
+              lines = list(
+                gpar(lwd=1.8, lty=3), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3),gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3)
+              )
+            ),
+            ci.vertices = TRUE,
+            xlab="Price Elasticities for Fresh Fruits",
+            new_page=FALSE)
+popViewport()
+
+# Plot in viewport position 2x1
+pushViewport(viewport(layout.pos.row=2))
+forestplot(mean=Income_Veg[,"coef"],
+          lower = Income_Veg[,"lower"],
+          upper=Income_Veg[,"upper"], 
+            labeltext=tabletext1,
+            txt_gp = fpTxtGp(label=gpar(cex=1),
+                             ticks = gpar(cex=1),
+                             xlab = gpar(cex=1)
+            ),
+            fn.ci_norm = fpDrawCircleCI,
+            #legend=c("high income", "low income"), 
+            # Added the clip argument as some of 
+            # the Danish CI are way out therer
+            clip=c(-.5, 0.5),
+            graphwidth = unit(11, "cm"),
+            colgap = unit(0.5,"cm"),
+            # Getting the ticks auto-generate is 
+            # a nightmare - it is usually better to 
+            # specify them on your own
+            xticks=c(-.4 -.2, 0, .5),
+            #graph.pos = "left",
+            boxsize=0.3,
+            lineheight=unit(0.6,"cm"),
+            col=fpColors(
+              lines = "black",
+              box = "black",
+              zero = "black"
+              ),
+            shapes_gp = fpShapesGp(
+              lines = list(
+                gpar(lwd=1.8, lty=3), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3),gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3)
+              )
+            ),
+            ci.vertices = TRUE,
+            xlab="Price Elasticities of Fresh Vegetables",
+            new_page=FALSE)
+
+popViewport(2)
+dev.off
+```
+
+
+## 3, Education_Fruits
+```{r}
+Education_Fruits <- structure(
+  c(NA, NA, 0.134, 0.121, NA, -0.110, -0.047, NA, NA, NA, NA, 0.100, 0.222, NA, 0.181, 0.157, NA, 0.062, 0.191,
+    NA, NA, 0.012, 0.012, NA, -0.196, -0.175, NA, NA, NA, NA, 0.026, 0.121, NA, 0.082, 0.051,NA,-0.056,0.082,
+    NA, NA, 0.255, 0.221, NA, -0.024, 0.081, NA,NA, NA, NA, 0.174, 0.324,NA,0.279, 0.263,NA, 0.179, 0.300),
+  .Dim = c(19L, 3L),
+  .Dimnames= list(c("", "", "canned fruits", "canned fruits", "","canned vegetables", "canned vegetables", "","fresh fruits","fresh fruits","", "fresh vegetables", "fresh vegetables", "","frozen fruits", "frozen fruits", "","frozen vegetables", "frozen vegetables"), 
+                             c("coef", "lower", "upper")))
+data.frame(Education_Fruits)
+tabletext2 <- cbind(
+    c("Category", "canned fruits", "   high education", "   low education", "canned vegetables", "   high education", "   low education", "fresh fruits","   high education", "   low education", "fresh vegetables", "   high education", "   low education", "frozen fruits", "   high education", "   low education", "frozen vegetables", "   high education", "   low education"),
+  c("CPE (95% CI)", NA, "***0.134 (0.012,  0.255)", "***0.121 (0.012, 0.221)", NA, "**-0.110 (-0.196, -0.024)", "-0.047 (-0.175, 0.081)", NA, "***-0.784 (-0.848, -0.720)","***-0.673 (-0.776, -0.570)", NA, "***0.100 (0.026, 0.174)", "***0.222 (0.121, 0.324)", NA, "***0.181 (0.082, 0.279)","***0.157 (0.051, 0.263)", NA, "0.062 (-0.056,  0.179)", "***0.191 (0.082, 0.300)"))
+
+
+
+```
+
+
+## 4, Education_Vegetables
+```{r}
+Education_Veg <- structure(
+  c(NA, NA, -0.178, -0.136, NA, -0.052,-0.147, NA, -0.027,-0.066, NA, NA, NA, NA, 0.038, 0.131, NA, 0.353, 0.303,
+    NA, NA, -0.261, -0.230, NA, -0.108,-0.217, NA, -0.085,-0.138, NA, -1.092, -1.074, NA, -0.019, 0.037, NA, 0.272, 0.216,
+    NA, NA, -0.096, -0.041, NA,  0.004, -0.077, NA, 0.031, 0.006, NA, -0.962, -0.922,NA, 0.094, 0.226,NA, 0.433, 0.391),
+  .Dim = c(19L, 3L),
+  .Dimnames= list(c("", "", "canned fruits", "canned fruits", "","canned vegetables", "canned vegetables", "","fresh fruits","fresh fruits","", "fresh vegetables", "fresh vegetables", "","frozen fruits", "frozen fruits", "","frozen vegetables", "frozen vegetables"), 
+                             c("coef", "lower", "upper")))
+
+tabletext3 <- cbind(
+    c("Category", "canned fruits", "   high education", "   low education", "canned vegetables", "   high education", "   low education", "fresh fruits","   high education", "   low education", "fresh vegetables", "   high education", "   low education", "frozen fruits", "   high education", "   low education", "frozen vegetables", "   high education", "   low education"),
+     c("CPE (95% CI)", NA, "***-0.178 (-0.261, -0.096)", "***-0.136 (-0.230, -0.041)", NA, "*-0.052 (-0.108, 0.004)", "***-0.147 (-0.217, -0.077)", NA, "-0.027 (-0.085,  0.031)","*-0.066 (-0.138, 0.006)", NA, "***-1.027 (-1.092, -0.962)", "***-0.998 (-1.074, -0.922)", NA, "0.038 (-0.019, 0.094)","***0.131 (0.037, 0.226)", NA, "***0.353  (0.272, 0.433)", "***0.303 (0.216, 0.391)")
+)
+  
+ 
+
+```
+
+
+```{r}
+options(expressions=1000)
+png(file = "fp.education6.png", width = 600, height =1000, units = "px")
+# Create 2 rows by one columns viewport
+fp.income <- grid.newpage()
+pushViewport(viewport(layout=grid.layout(2,1)))
+
+# Plot in viewport position 1x1
+pushViewport(viewport(layout.pos.row = 1))
+forestplot(mean=Education_Fruits[,"coef"],
+          lower = Education_Fruits[,"lower"],
+          upper=Education_Fruits[,"upper"], 
+            labeltext=tabletext2,
+            txt_gp = fpTxtGp(label=gpar(cex=1),
+                             ticks = gpar(cex=1),
+                             xlab = gpar(cex=1)
+            ),
+            fn.ci_norm = fpDrawCircleCI,
+            #legend=c("high income", "low income"), 
+            # Added the clip argument as some of 
+            # the Danish CI are way out therer
+            clip=c(-.5, 0.5),
+            graphwidth = unit(11, "cm"),
+            colgap = unit(2,"mm"),
+            #cex=1,
+            # Getting the ticks auto-generate is 
+            # a nightmare - it is usually better to 
+            # specify them on your own
+            xticks=c(-.4 -.2, 0, .5),
+            boxsize=0.3,
+            lineheight=unit(0.6,"cm"),
+            col=fpColors(
+              lines = "black",
+              box = "black",
+              zero = "black",
+              ),
+            shapes_gp = fpShapesGp(
+              lines = list(
+                gpar(lwd=1.8, lty=3), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3),gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3)
+              )
+            ),
+            ci.vertices = TRUE,
+            xlab="Price Elasticities of Fresh Fruits",
+            new_page=FALSE)
+popViewport()
+
+# Plot in viewport position 2x1
+pushViewport(viewport(layout.pos.row = 2))
+forestplot(mean=Education_Veg[,"coef"],
+          lower = Education_Veg[,"lower"],
+          upper=Education_Veg[,"upper"], 
+            labeltext=tabletext3,
+            txt_gp = fpTxtGp(label=gpar(cex=1),
+                             ticks = gpar(cex=1),
+                             xlab = gpar(cex=1)
+            ),
+            fn.ci_norm = fpDrawCircleCI,
+            #legend=c("high income", "low income"), 
+            # Added the clip argument as some of 
+            # the Danish CI are way out therer
+            clip=c(-.5, 0.5),
+            graphwidth = unit(11, "cm"),
+            colgap = unit(2,"mm"),
+            # Getting the ticks auto-generate is 
+            # a nightmare - it is usually better to 
+            # specify them on your own
+            xticks=c(-.4 -.2, 0, .5),
+            #graph.pos = "left",
+            boxsize=0.3,
+            lineheight=unit(0.6,"cm"),
+            col=fpColors(
+              lines = "black",
+              box = "black",
+              zero = "black"
+              ),
+            shapes_gp = fpShapesGp(
+              lines = list(
+                gpar(lwd=1.8, lty=3), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3), gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3),gpar(lty=1), gpar(lwd=1.8,lty=1),gpar(lwd=1.8,lty=3), gpar(lty=1),gpar(lwd=1.8,lty=1), gpar(lwd=1.8,lty=3)
+              )
+            ),
+            ci.vertices = TRUE,
+            xlab="Price Elasticities of Fresh Vegetables",
+            new_page=FALSE)
+
+popViewport(2)
+dev.off
+```
+
+
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
