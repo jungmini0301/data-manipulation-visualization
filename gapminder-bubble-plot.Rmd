@@ -1,5 +1,5 @@
 ---
-title: "PPHS 616 Software01"
+title: "Gapminder-Bubble Plot"
 author: "Jungmin Chang"
 date: "`r Sys.Date()`"
 output:
